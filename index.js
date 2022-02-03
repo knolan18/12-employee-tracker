@@ -21,12 +21,45 @@ function start() {
         case 'Add Employee':
           addEmployee();
           break;
+        case 'Update Employee Role':
+          updateEmployeeRole();
+          break;
+        case 'View All Roles':
+          viewAllRoles();
+          break;
+        case 'Add Role':
+          addRole();
+          break;
+        case 'View All Departments':
+          viewAllDepartments();
+          break;
+        case 'Add Department':
+          addDepartment();
+          break;
       }
     })
   };
   
   function viewAllEmployees() {
     const sql = 'SELECT * FROM employee';
+    db.query(sql, (err, res) => {
+      if(err) res.status(500).json({error: err.message});
+      console.table(res);
+      whatAction();
+    })
+  };
+
+  function viewAllDepartments() {
+    const sql = 'SELECT * FROM department';
+    db.query(sql, (err, res) => {
+      if(err) res.status(500).json({error: err.message});
+      console.table(res);
+      whatAction();
+    })
+  };
+
+  function viewAllRoles() {
+    const sql = 'SELECT * FROM role';
     db.query(sql, (err, res) => {
       if(err) res.status(500).json({error: err.message});
       console.table(res);
@@ -42,7 +75,24 @@ function start() {
         message: 'What is the name of the department?'
       }
     ])
-  };
+    .then( res => {
+      let deptName = res.deptName;
+      let newDepartment = deptName;
+
+      db.query('INSERT INTO department SET department_name= ?', newDepartment,(err, res) => {
+        if(err){
+          console.log(err);
+        }
+        const departments = res.map(({ id, department_name}) => ({
+          name: `${deptName}`,
+          value: id
+        }))
+        console.log(`${deptName} added to database!`);
+        viewAllDepartments();
+      })
+    })
+  };            
+
 
   function addRole() {
     inquirer.prompt([
